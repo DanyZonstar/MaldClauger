@@ -16,6 +16,7 @@
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block}
+html.rot body{position:fixed;top:0;left:0;width:100vh;height:100vw;transform-origin:0 0;transform:translateX(100vw) rotate(90deg)}
 .screen{position:fixed;inset:0;z-index:5;display:flex;overflow-y:auto;background:rgba(5,7,11,.86);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-block:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-bottom,0px))}
@@ -177,11 +178,12 @@ const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 let W=900,H=540,S=1,GY=400;
 const PX=22; // пикселей на метр
 const Z=1.3;let WW=700,HW=415,HUDW=900,HUDH=540;
-function resize(){const d=Math.min(2,devicePixelRatio||1);cv.width=Math.round(innerWidth*d);cv.height=Math.round(innerHeight*d);
+function resize(){const d=Math.min(2,devicePixelRatio||1),rot=document.documentElement.classList.contains('rot');const vw=rot?innerHeight:innerWidth,vh=rot?innerWidth:innerHeight;cv.width=Math.round(vw*d);cv.height=Math.round(vh*d);
   S=Math.min(cv.height/540,cv.width/900);HUDW=cv.width/S;HUDH=cv.height/S;WW=HUDW/Z;HW=HUDH/Z;GY=Math.min(HW-95,HW/2+115);W=WW;H=HW;}
 function worldMode(){W=WW;H=HW;ctx.setTransform(S*Z,0,0,S*Z,0,0)}
 function hudMode(){W=HUDW;H=HUDH;ctx.setTransform(S,0,0,S,0,0)}
-addEventListener('resize',resize);resize();
+function orient(){document.documentElement.classList.toggle('rot',matchMedia('(pointer:coarse) and (orientation:portrait)').matches);resize()}
+addEventListener('resize',orient);orient();
 
 /* ---------- геометрия поезда (метры, 0 = хвост, растёт к голове) ---------- */
 const CAR=25,GAP=1.2,NC=7,LEN=NC*CAR+(NC-1)*GAP;
